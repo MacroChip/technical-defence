@@ -43,6 +43,16 @@ python3 -m http.server 8080
 Works great on GitHub Pages too: enable Pages for this branch and point it
 at the repository root.
 
+### Docker
+
+```sh
+docker compose up
+# then visit http://localhost:8082
+```
+
+This builds a tiny nginx-alpine image that serves the static files on
+port **8082**. Add `-d` to run detached; `docker compose down` to stop.
+
 ## Tech
 
 Plain HTML/CSS/JavaScript on a `<canvas>`. All the vehicle art is drawn

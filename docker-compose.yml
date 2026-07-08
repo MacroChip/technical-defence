@@ -1,0 +1,8 @@
+services:
+  technical-defence:
+    build: .
+    image: technical-defence
+    container_name: technical-defence
+    ports:
+      - "8082:8082"
+    restart: unless-stopped
