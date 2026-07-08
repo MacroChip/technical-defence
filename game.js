@@ -156,10 +156,10 @@ const sfx = {
  * ========================================================================= */
 const VEHICLES = [
   {
-    id: 'tuktuk', name: 'Tuk-Tuk', weapon: 'Twin Machine Guns',
-    blurb: 'Three wheels, two guns, zero fear. Still licensed as a taxi.',
-    cost: 120, hp: 70, speed: 55, range: 120, rof: 6, dmg: 5,
-    proj: 'bullet', len: 26, wid: 14, mount: [-4, 0], barrel: 15, sound: 'gun',
+    id: 'pickup', name: 'Pickup Truck', weapon: 'Twin Machine Guns',
+    blurb: 'The original technical. Factory paint, aftermarket everything else.',
+    cost: 120, hp: 80, speed: 55, range: 135, rof: 6, dmg: 5,
+    proj: 'bullet', len: 30, wid: 15, mount: [-7, 0], barrel: 15, sound: 'gun',
   },
   {
     id: 'moped', name: 'Pizza Moped', weapon: 'Recoilless Rifle',
@@ -168,7 +168,7 @@ const VEHICLES = [
     proj: 'shell', len: 22, wid: 9, mount: [-2, 0], barrel: 18, sound: 'cannon',
   },
   {
-    id: 'icecream', name: 'Ice-Cream Van', weapon: 'Flak Cannon',
+    id: 'icecream', name: 'Ice-Cream Van', weapon: 'DShK',
     blurb: 'The jingle is the last thing the watchtower ever hears.',
     cost: 260, hp: 120, speed: 45, range: 150, rof: 2.2, dmg: 10, aoe: 20,
     proj: 'flak', len: 34, wid: 17, mount: [-2, 0], barrel: 22, sound: 'flak',
@@ -186,16 +186,16 @@ const VEHICLES = [
     proj: 'rocket', len: 58, wid: 18, mount: [0, 0], barrel: 20, sound: 'rocket',
   },
   {
-    id: 'limo', name: 'Stretch Limo', weapon: 'Tank Turret',
-    blurb: 'Champagne in the back, 125mm smoothbore on the roof.',
+    id: 'bicycle', name: 'Bicycle', weapon: 'Tank Turret',
+    blurb: 'Zero to 125mm in fourteen pedal strokes. Wear a helmet.',
     cost: 460, hp: 190, speed: 50, range: 170, rof: 0.8, dmg: 46, aoe: 30,
-    proj: 'shell', len: 56, wid: 15, mount: [4, 0], barrel: 26, sound: 'cannon',
+    proj: 'shell', len: 24, wid: 9, mount: [-1, 0], barrel: 26, sound: 'cannon',
   },
   {
-    id: 'mixer', name: 'Cement Mixer', weapon: 'Rocket Battery',
-    blurb: 'Pours concrete AND redistributes it, all in one visit.',
+    id: 'tuktuk', name: 'Tuk-Tuk', weapon: 'Rocket Battery',
+    blurb: 'So many rockets the suspension filed a formal complaint.',
     cost: 540, hp: 210, speed: 25, range: 210, rof: 3, dmg: 14, aoe: 34,
-    proj: 'rocket', len: 44, wid: 18, mount: [-8, 0], barrel: 18, sound: 'rocket',
+    proj: 'rocket', len: 26, wid: 14, mount: [-4, 0], barrel: 16, sound: 'rocket',
   },
 ];
 
@@ -231,10 +231,10 @@ const STRUCTS = {
 
 // hand-placed lots beside the road where fortifications get built
 const SPOTS = [
-  { x: 300, y: 148 }, { x: 108, y: 205 }, { x: 262, y: 330 }, { x: 88, y: 452 },
+  { x: 300, y: 148 }, { x: 140, y: 220 }, { x: 262, y: 330 }, { x: 88, y: 452 },
   { x: 330, y: 425 }, { x: 588, y: 480 }, { x: 388, y: 322 }, { x: 560, y: 220 },
   { x: 690, y: 82 },  { x: 892, y: 240 }, { x: 726, y: 330 }, { x: 852, y: 468 },
-  { x: 636, y: 560 }, { x: 486, y: 64 },
+  { x: 700, y: 515 }, { x: 540, y: 90 },
 ];
 
 /* =========================================================================
@@ -292,7 +292,10 @@ function startWave() {
   game.wave++;
   const hpScale = 1 + (game.wave - 1) * 0.18;
   const bountyScale = 1 + (game.wave - 1) * 0.08;
-  const spots = [...SPOTS].sort(() => Math.random() - 0.5);
+  // reachability guard: early waves only use spots the starter vehicle can hit;
+  // later waves still exclude anything outside every vehicle's reach
+  const reach = (game.wave <= 2 ? VEHICLES[0].range : Math.max(...VEHICLES.map(v => v.range))) - 25;
+  const spots = SPOTS.filter(s => s.roadDist <= reach).sort(() => Math.random() - 0.5);
   const types = composeWave(game.wave);
   game.structures = [];
   for (let i = 0; i < types.length && i < spots.length; i++) {
@@ -513,8 +516,8 @@ function update(dt) {
       if (d < t.range && d < best) { best = d; target = st; }
     }
 
-    // drive (slower while engaging — gun-run pace)
-    v.s += t.speed * (target ? 0.55 : 1) * dt;
+    // drive (much slower while engaging — gun-run pace)
+    v.s += t.speed * (target ? 0.4 : 1) * dt;
     const p = pointAt(v.s);
     const nx = -Math.sin(p.ang), ny = Math.cos(p.ang);
     v.x = p.x + nx * v.lane;
@@ -760,6 +763,20 @@ function drawBarrel(g, len, width, color) {
 }
 
 const VEHICLE_ART = {
+  pickup(g) {
+    drawWheel(g, 9, -8, 7, 4);
+    drawWheel(g, 9, 8, 7, 4);
+    drawWheel(g, -9, -8, 7, 4);
+    drawWheel(g, -9, 8, 7, 4);
+    g.fillStyle = '#c9cdd2';
+    rounded(g, -15, -7.5, 30, 15, 3);
+    g.fillStyle = '#8d9299'; // open cargo bed
+    g.fillRect(-13, -5.5, 13, 11);
+    g.fillStyle = '#bfe3ef';
+    g.fillRect(4, -5.5, 4, 11); // windshield
+    g.fillStyle = '#e8c531';
+    g.fillRect(14, -6, 1.6, 3); g.fillRect(14, 3, 1.6, 3); // headlights
+  },
   tuktuk(g) {
     drawWheel(g, 10, 0, 6, 5);
     drawWheel(g, -8, -7, 7, 4);
@@ -824,46 +841,33 @@ const VEHICLE_ART = {
     g.fillStyle = '#333';
     g.fillRect(24, -7, 3, 14); // front grill
   },
-  limo(g) {
-    drawWheel(g, 21, -8, 7, 4);
-    drawWheel(g, 21, 8, 7, 4);
-    drawWheel(g, -21, -8, 7, 4);
-    drawWheel(g, -21, 8, 7, 4);
-    g.fillStyle = '#1d1d22';
-    rounded(g, -28, -7.5, 56, 15, 6);
-    g.fillStyle = '#4d5866';
-    for (let i = -22; i <= 16; i += 7) g.fillRect(i, -5.5, 4.4, 2.6);
-    for (let i = -22; i <= 16; i += 7) g.fillRect(i, 2.9, 4.4, 2.6);
-    g.fillStyle = '#e8c531';
-    g.fillRect(26, -4, 2, 3); g.fillRect(26, 1, 2, 3); // headlights
-  },
-  mixer(g) {
-    drawWheel(g, 14, -9, 8, 4);
-    drawWheel(g, 14, 9, 8, 4);
-    drawWheel(g, -14, -9, 8, 4);
-    drawWheel(g, -14, 9, 8, 4);
-    drawWheel(g, -6, -9, 8, 4);
-    drawWheel(g, -6, 9, 8, 4);
-    g.fillStyle = '#38618c';
-    rounded(g, 8, -8, 14, 16, 3); // cab
-    g.fillStyle = '#bfe3ef';
-    g.fillRect(17, -6, 3.4, 12);
-    g.fillStyle = '#c1c7ce'; // drum
-    g.beginPath(); g.ellipse(-8, 0, 14, 9, 0, 0, TAU); g.fill();
-    g.strokeStyle = '#8d939b';
+  bicycle(g) {
+    drawWheel(g, 9, 0, 8, 2.6);
+    drawWheel(g, -9, 0, 8, 2.6);
+    g.strokeStyle = '#c8372e';
+    g.lineWidth = 2.4;
+    g.beginPath(); g.moveTo(-8, 0); g.lineTo(8, 0); g.stroke(); // frame
+    g.strokeStyle = '#7d7d7d';
     g.lineWidth = 2;
-    g.beginPath(); g.moveTo(-18, -4); g.lineTo(2, 4); g.stroke();
-    g.beginPath(); g.moveTo(-18, 4); g.lineTo(2, -4); g.stroke();
+    g.beginPath(); g.moveTo(11.5, -4.5); g.lineTo(11.5, 4.5); g.stroke(); // handlebars
+    g.fillStyle = '#221d16';
+    g.fillRect(-5, -1.6, 5, 3.2); // saddle
   },
 };
 
 const TURRET_ART = {
-  tuktuk(g) {
+  pickup(g) {
     g.fillStyle = '#33302a';
     g.fillRect(0, -3.4, 14, 2.2);
     g.fillRect(0, 1.2, 14, 2.2);
     g.fillStyle = '#5a5348';
     g.beginPath(); g.arc(0, 0, 3.4, 0, TAU); g.fill();
+  },
+  tuktuk(g) {
+    g.fillStyle = '#5a4a3a';
+    g.fillRect(-4, -6, 9, 12);
+    g.fillStyle = '#33302a';
+    for (const y of [-4.4, -1.5, 1.5, 4.4]) g.fillRect(4, y - 1.1, 13, 2.2);
   },
   moped(g) {
     drawBarrel(g, 18, 3.4, '#6b6f5a');
@@ -890,16 +894,10 @@ const TURRET_ART = {
     g.fillRect(4, 2, 16, 2.6);
     g.fillRect(4, 6 - 1.8, 16, 2.6);
   },
-  limo(g) {
+  bicycle(g) {
     g.fillStyle = '#3a4048';
     g.beginPath(); g.arc(0, 0, 6, 0, TAU); g.fill();
     drawBarrel(g, 26, 4, '#2c3138');
-  },
-  mixer(g) {
-    g.fillStyle = '#5a4a3a';
-    g.fillRect(-4, -7, 10, 14);
-    g.fillStyle = '#33302a';
-    for (const y of [-5, -1.6, 1.8, 5.2]) g.fillRect(4, y - 1.1, 15, 2.2);
   },
 };
 
@@ -1318,6 +1316,7 @@ function frame(now) {
 /* ---------- boot ---------- */
 resetGame();
 buildPath();
+for (const s of SPOTS) s.roadDist = distToPath(s.x, s.y);
 buildBackground();
 buildCards();
 updateUI();

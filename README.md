@@ -12,13 +12,13 @@ still and shoot back.
 
 | Vehicle | Armament | Notes |
 | --- | --- | --- |
-| Tuk-Tuk | Twin machine guns | Still licensed as a taxi |
+| Pickup Truck | Twin machine guns | The original technical |
 | Pizza Moped | Recoilless rifle | 30 minutes or the next warhead is free |
-| Ice-Cream Van | Flak cannon | The jingle is the last thing they hear |
+| Ice-Cream Van | DShK | The jingle is the last thing they hear |
 | Farm Tractor | Battleship cannon | Ploughs fields, flattens bunkers |
 | School Bus | Quad rocket pods | Please remain seated |
-| Stretch Limo | Tank turret | Champagne in the back, 125mm on the roof |
-| Cement Mixer | Rocket battery | Pours concrete AND redistributes it |
+| Bicycle | Tank turret | Zero to 125mm in fourteen pedal strokes |
+| Tuk-Tuk | Rocket battery | The suspension filed a formal complaint |
 
 ## How to play
 
