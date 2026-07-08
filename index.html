@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Technical Difficulties — Reverse Tower Defense</title>
+  <meta name="description" content="A reverse tower defense game. Your improvised gun-trucks drive the road; the towers stand still and pray.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛻</text></svg>">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>TECHNICAL DIFFICULTIES</h1>
+    <p class="tagline">A reverse tower defense &mdash; the towers stand still, <em>you</em> do the driving and the shooting.</p>
+  </header>
+
+  <div id="topbar">
+    <div class="stat" title="Cash — earned by destroying fortifications">💵 <span id="ui-cash">0</span></div>
+    <div class="stat" title="Current wave">🌊 Wave <span id="ui-wave">0</span></div>
+    <div class="stat" title="Convoy morale — lose a heart for every technical destroyed. At zero, the convoy goes home.">❤️ <span id="ui-morale">10</span></div>
+    <div class="stat" title="Fortifications destroyed">💥 <span id="ui-kills">0</span></div>
+    <div class="spacer"></div>
+    <button id="btn-wave" title="Start the next wave (Space)">Start Wave</button>
+    <button id="btn-speed" title="Toggle game speed">1&times;</button>
+    <button id="btn-sound" title="Toggle sound">🔊</button>
+  </div>
+
+  <main>
+    <div id="game-wrap">
+      <canvas id="game" width="960" height="600"></canvas>
+
+      <div id="splash" class="overlay">
+        <div class="panel">
+          <h2>THE CONVOY ATTACKS</h2>
+          <p>Somebody bolted a battleship cannon onto a farm tractor, and now there is no going back.</p>
+          <ul>
+            <li>🛻 Buy <strong>technicals</strong> from the garage — they drive the road on their own and fire at anything fortified.</li>
+            <li>🏰 The <strong>towers are the enemy</strong>. Bunkers, watchtowers and mortar pits sit still and shoot back.</li>
+            <li>💵 Wrecked fortifications pay <strong>bounties</strong>. Vehicles that survive to the end of the road bring home salvage.</li>
+            <li>❤️ Every technical you lose costs <strong>morale</strong>. At zero morale the convoy calls it a day.</li>
+            <li>⌨️ Hotkeys: <strong>1&ndash;7</strong> to deploy, <strong>Space</strong> to start a wave.</li>
+          </ul>
+          <button id="btn-start" class="big">🔥 ROLL OUT 🔥</button>
+        </div>
+      </div>
+
+      <div id="gameover" class="overlay hidden">
+        <div class="panel">
+          <h2>THE CONVOY GOES HOME</h2>
+          <p id="go-text">Morale broke. The tuk-tuks turned around.</p>
+          <div id="go-stats"></div>
+          <button id="btn-restart" class="big">🔧 REBUILD THE FLEET 🔧</button>
+        </div>
+      </div>
+    </div>
+
+    <aside id="garage">
+      <h2>🔧 THE GARAGE</h2>
+      <div id="cards"></div>
+    </aside>
+  </main>
+
+  <footer>
+    <p>Every vehicle in this game is a terrible idea, lovingly maintained.
+       No warranty expressed or implied, especially on the ice-cream van.</p>
+  </footer>
+
+  <script src="game.js"></script>
+</body>
+</html>
