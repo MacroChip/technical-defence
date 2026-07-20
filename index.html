@@ -21,7 +21,10 @@
     <div class="stat" title="Fortifications destroyed">💥 <span id="ui-kills">0</span></div>
     <div class="spacer"></div>
     <button id="btn-wave" title="Start the next wave (Space)">Start Wave</button>
-    <button id="btn-speed" title="Toggle game speed">1&times;</button>
+    <label class="speed-control" title="Set game speed from 1× to 5×">
+      <span>Speed <output id="speed-value" for="speed-slider">1×</output></span>
+      <input id="speed-slider" type="range" min="1" max="5" value="1" step="1" aria-label="Game speed">
+    </label>
     <button id="btn-sound" title="Toggle sound">🔊</button>
   </div>
 
@@ -59,11 +62,6 @@
       <div id="cards"></div>
     </aside>
   </main>
-
-  <footer>
-    <p>Every vehicle in this game is a terrible idea, lovingly maintained.
-       No warranty expressed or implied, especially on the ice-cream van.</p>
-  </footer>
 
   <script src="game.js"></script>
 </body>

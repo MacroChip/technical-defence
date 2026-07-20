@@ -31,12 +31,48 @@ canvas.style.aspectRatio = `${W} / ${H}`;
 /* =========================================================================
  * THE ROAD
  * ========================================================================= */
-const WAYPOINTS = [
-  { x: -50, y: 100 }, { x: 180, y: 100 }, { x: 250, y: 220 }, { x: 140, y: 330 },
-  { x: 200, y: 470 }, { x: 420, y: 510 }, { x: 530, y: 400 }, { x: 470, y: 260 },
-  { x: 600, y: 140 }, { x: 800, y: 170 }, { x: 840, y: 330 }, { x: 740, y: 460 },
-  { x: 1010, y: 540 },
+const MAPS = [
+  {
+    name: 'Coyote Switchbacks',
+    waypoints: [
+      { x: -50, y: 100 }, { x: 180, y: 100 }, { x: 250, y: 220 }, { x: 140, y: 330 },
+      { x: 200, y: 470 }, { x: 420, y: 510 }, { x: 530, y: 400 }, { x: 470, y: 260 },
+      { x: 600, y: 140 }, { x: 800, y: 170 }, { x: 840, y: 330 }, { x: 740, y: 460 }, { x: 1010, y: 540 },
+    ],
+    spots: [
+      { x: 300, y: 148 }, { x: 140, y: 220 }, { x: 262, y: 330 }, { x: 88, y: 452 }, { x: 330, y: 425 },
+      { x: 588, y: 480 }, { x: 388, y: 322 }, { x: 560, y: 220 }, { x: 690, y: 82 }, { x: 892, y: 240 },
+      { x: 726, y: 330 }, { x: 852, y: 468 }, { x: 700, y: 515 }, { x: 540, y: 90 },
+    ],
+  },
+  {
+    name: 'Dry River Run',
+    waypoints: [
+      { x: -50, y: 490 }, { x: 150, y: 490 }, { x: 245, y: 390 }, { x: 190, y: 250 }, { x: 360, y: 145 },
+      { x: 530, y: 210 }, { x: 610, y: 350 }, { x: 760, y: 405 }, { x: 840, y: 270 }, { x: 760, y: 115 }, { x: 1010, y: 90 },
+    ],
+    spots: [
+      { x: 105, y: 400 }, { x: 198, y: 555 }, { x: 315, y: 440 }, { x: 110, y: 235 }, { x: 300, y: 265 },
+      { x: 365, y: 55 }, { x: 450, y: 280 }, { x: 550, y: 110 }, { x: 690, y: 290 }, { x: 690, y: 470 },
+      { x: 855, y: 465 }, { x: 910, y: 215 }, { x: 690, y: 70 }, { x: 900, y: 65 },
+    ],
+  },
+  {
+    name: 'Sunset Causeway',
+    waypoints: [
+      { x: -50, y: 280 }, { x: 120, y: 280 }, { x: 210, y: 150 }, { x: 370, y: 100 }, { x: 490, y: 190 },
+      { x: 450, y: 345 }, { x: 580, y: 485 }, { x: 750, y: 470 }, { x: 825, y: 345 }, { x: 745, y: 230 }, { x: 880, y: 130 }, { x: 1010, y: 280 },
+    ],
+    spots: [
+      { x: 100, y: 180 }, { x: 105, y: 385 }, { x: 260, y: 265 }, { x: 240, y: 65 }, { x: 400, y: 205 },
+      { x: 430, y: 425 }, { x: 560, y: 280 }, { x: 650, y: 545 }, { x: 720, y: 365 }, { x: 875, y: 435 },
+      { x: 645, y: 165 }, { x: 790, y: 80 }, { x: 920, y: 190 }, { x: 915, y: 360 },
+    ],
+  },
 ];
+let currentMap = MAPS[0];
+let WAYPOINTS = currentMap.waypoints;
+let SPOTS = currentMap.spots;
 
 let pathPts = [];   // dense smoothed samples
 let pathCum = [];   // cumulative distance per sample
@@ -157,44 +193,37 @@ const sfx = {
 const VEHICLES = [
   {
     id: 'pickup', name: 'Pickup Truck', weapon: 'Twin Machine Guns',
-    blurb: 'The original technical. Factory paint, aftermarket everything else.',
     cost: 120, hp: 80, speed: 55, range: 135, rof: 6, dmg: 5,
     proj: 'bullet', len: 30, wid: 15, mount: [-7, 0], barrel: 15, sound: 'gun',
   },
   {
     id: 'moped', name: 'Pizza Moped', weapon: 'Recoilless Rifle',
-    blurb: 'Delivers in 30 minutes or the next warhead is free.',
-    cost: 160, hp: 40, speed: 85, range: 150, rof: 0.7, dmg: 34, aoe: 26,
+    cost: 160, hp: 35, speed: 90, range: 165, rof: 0.7, dmg: 34, aoe: 26,
     proj: 'shell', len: 22, wid: 9, mount: [-2, 0], barrel: 18, sound: 'cannon',
   },
   {
     id: 'icecream', name: 'Ice-Cream Van', weapon: 'DShK',
-    blurb: 'The jingle is the last thing the watchtower ever hears.',
-    cost: 260, hp: 120, speed: 45, range: 150, rof: 2.2, dmg: 10, aoe: 20,
+    cost: 260, hp: 145, speed: 40, range: 145, rof: 2.6, dmg: 10, aoe: 20,
     proj: 'flak', len: 34, wid: 17, mount: [-2, 0], barrel: 22, sound: 'flak',
   },
   {
     id: 'tractor', name: 'Farm Tractor', weapon: 'Battleship Cannon',
-    blurb: 'Ploughs fields in spring, flattens bunkers year-round.',
-    cost: 340, hp: 170, speed: 28, range: 190, rof: 0.45, dmg: 60, aoe: 40,
+    cost: 340, hp: 220, speed: 24, range: 195, rof: 0.45, dmg: 60, aoe: 46,
     proj: 'shell', len: 30, wid: 18, mount: [-4, 0], barrel: 28, sound: 'cannon',
   },
   {
     id: 'bus', name: 'School Bus', weapon: 'Quad Rocket Pods',
-    blurb: 'Please remain seated while the rockets are in motion.',
-    cost: 420, hp: 260, speed: 34, range: 165, rof: 1.4, dmg: 20, aoe: 42,
+    cost: 420, hp: 300, speed: 31, range: 145, rof: 1.4, dmg: 20, aoe: 42,
     proj: 'rocket', len: 58, wid: 18, mount: [0, 0], barrel: 20, sound: 'rocket',
   },
   {
     id: 'bicycle', name: 'Bicycle', weapon: 'Tank Turret',
-    blurb: 'Zero to 125mm in fourteen pedal strokes. Wear a helmet.',
-    cost: 460, hp: 190, speed: 50, range: 170, rof: 0.8, dmg: 46, aoe: 30,
+    cost: 460, hp: 115, speed: 68, range: 175, rof: 0.8, dmg: 46, aoe: 30,
     proj: 'shell', len: 24, wid: 9, mount: [-1, 0], barrel: 26, sound: 'cannon',
   },
   {
     id: 'tuktuk', name: 'Tuk-Tuk', weapon: 'Rocket Battery',
-    blurb: 'So many rockets the suspension filed a formal complaint.',
-    cost: 540, hp: 210, speed: 25, range: 210, rof: 3, dmg: 14, aoe: 34,
+    cost: 540, hp: 95, speed: 23, range: 220, rof: 3, dmg: 14, aoe: 34,
     proj: 'rocket', len: 26, wid: 14, mount: [-4, 0], barrel: 16, sound: 'rocket',
   },
 ];
@@ -228,14 +257,6 @@ const STRUCTS = {
     proj: 'ebullet', r: 22, minWave: 5, weight: 0,
   },
 };
-
-// hand-placed lots beside the road where fortifications get built
-const SPOTS = [
-  { x: 300, y: 148 }, { x: 140, y: 220 }, { x: 262, y: 330 }, { x: 88, y: 452 },
-  { x: 330, y: 425 }, { x: 588, y: 480 }, { x: 388, y: 322 }, { x: 560, y: 220 },
-  { x: 690, y: 82 },  { x: 892, y: 240 }, { x: 726, y: 330 }, { x: 852, y: 468 },
-  { x: 700, y: 515 }, { x: 540, y: 90 },
-];
 
 /* =========================================================================
  * GAME STATE
@@ -288,8 +309,29 @@ function composeWave(n) {
   return list;
 }
 
+function selectMap(index) {
+  currentMap = MAPS[index % MAPS.length];
+  WAYPOINTS = currentMap.waypoints;
+  SPOTS = currentMap.spots.map(s => ({ ...s }));
+  _seed = 20260708 + index * 997;
+  buildPath();
+  for (const s of SPOTS) s.roadDist = distToPath(s.x, s.y);
+  buildBackground();
+  // A convoy crossing into the next sector keeps its progress, now on that sector's road.
+  for (const v of game.vehicles) {
+    v.s = clamp(v.s, 0, pathLen);
+    const p = pointAt(v.s);
+    v.x = p.x;
+    v.y = p.y;
+    v.ang = p.ang;
+    v.tAng = p.ang;
+  }
+  game.projectiles = [];
+}
+
 function startWave() {
   game.wave++;
+  selectMap(game.wave - 1);
   const hpScale = 1 + (game.wave - 1) * 0.18;
   const bountyScale = 1 + (game.wave - 1) * 0.08;
   // reachability guard: early waves only use spots the starter vehicle can hit;
@@ -309,7 +351,7 @@ function startWave() {
     });
   }
   game.state = 'wave';
-  banner(`WAVE ${game.wave}`, `${game.structures.length} fortifications dug in`);
+  banner(`WAVE ${game.wave} — ${currentMap.name}`, `${game.structures.length} fortifications dug in`);
   sfx.wave();
   updateUI();
 }
@@ -744,8 +786,8 @@ function buildBackground() {
   g.font = 'bold 11px Trebuchet MS, sans-serif';
   g.textAlign = 'center';
   g.fillStyle = 'rgba(60,45,20,0.75)';
-  g.fillText('CONVOY ▶', s0.x + 52, s0.y - 26);
-  g.fillText('▶ ESCAPE', s1.x - 46, s1.y - 30);
+  g.fillText('CONVOY ▶', 66, clamp(s0.y - 26, 22, H - 18));
+  g.fillText('▶ ESCAPE', W - 66, clamp(s1.y - 30, 22, H - 18));
 }
 
 /* =========================================================================
@@ -1075,6 +1117,13 @@ function render() {
   ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
   ctx.drawImage(bgCanvas, 0, 0, W, H);
 
+  ctx.fillStyle = 'rgba(49, 37, 20, 0.68)';
+  ctx.fillRect(W / 2 - 92, 8, 184, 22);
+  ctx.fillStyle = '#f3ddb0';
+  ctx.font = 'bold 11px Trebuchet MS, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(`MAP ${MAPS.indexOf(currentMap) + 1}/3: ${currentMap.name}`, W / 2, 23);
+
   // scorch decals
   for (const d of game.decals) {
     ctx.fillStyle = 'rgba(35,25,15,0.4)';
@@ -1192,7 +1241,8 @@ const els = {
   morale: document.getElementById('ui-morale'),
   kills: document.getElementById('ui-kills'),
   btnWave: document.getElementById('btn-wave'),
-  btnSpeed: document.getElementById('btn-speed'),
+  speedSlider: document.getElementById('speed-slider'),
+  speedValue: document.getElementById('speed-value'),
   btnSound: document.getElementById('btn-sound'),
   cards: document.getElementById('cards'),
 };
@@ -1204,11 +1254,11 @@ function buildCards() {
     card.className = 'card';
     card.id = `card-${t.id}`;
     const dps = Math.round(t.dmg * t.rof);
+    const area = t.aoe ? `${t.aoe}px` : '—';
     card.innerHTML =
       `<canvas width="${92 * DPR}" height="${52 * DPR}"></canvas>` +
       `<div class="name">${t.name} <span class="weapon">+ ${t.weapon}</span><span class="key">${i + 1}</span></div>` +
-      `<div class="meta"><span class="cost">$${t.cost}</span><span>❤${t.hp}</span><span>⚔${dps}/s</span><span>🏁${t.speed}</span></div>` +
-      `<div class="blurb">${t.blurb}</div>`;
+      `<div class="meta"><span class="cost">$${t.cost}</span><span><b class="stat-label">HP</b> ${t.hp}</span><span><b class="stat-label">SPD</b> ${t.speed}</span><span><b class="stat-label">DPS</b> ${dps}</span><span><b class="stat-label">RNG</b> ${t.range}</span><span><b class="stat-label">ROF</b> ${t.rof}/s</span><span><b class="stat-label">AOE</b> ${area}</span></div>`;
     card.addEventListener('click', () => deploy(i));
     els.cards.appendChild(card);
 
@@ -1277,9 +1327,9 @@ els.btnWave.addEventListener('click', () => {
   if (game.state === 'intermission') startWave();
 });
 
-els.btnSpeed.addEventListener('click', () => {
-  game.timeScale = game.timeScale === 1 ? 2 : 1;
-  els.btnSpeed.innerHTML = `${game.timeScale}&times;`;
+els.speedSlider.addEventListener('input', () => {
+  game.timeScale = Number(els.speedSlider.value);
+  els.speedValue.textContent = `${game.timeScale}×`;
 });
 
 els.btnSound.addEventListener('click', () => {
